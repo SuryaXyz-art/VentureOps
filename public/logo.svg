@@ -1,0 +1,8 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 96" role="img" aria-label="VentureOps Autopilot logo">
+  <rect width="360" height="96" rx="18" fill="#090d16"/>
+  <rect x="18" y="18" width="60" height="60" rx="12" fill="#2fd2b8"/>
+  <path d="M32 55h32v10H32z" fill="#090d16"/>
+  <path d="M35 31h26l-6 18H41z" fill="#f5aa42"/>
+  <text x="96" y="45" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#eefafa">VentureOps</text>
+  <text x="96" y="68" font-family="Inter, Arial, sans-serif" font-size="16" fill="#8fb8b6">Autopilot</text>
+</svg>

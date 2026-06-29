@@ -1,0 +1,36 @@
+﻿{
+  "name": "ventureops-autopilot-network-allowlist-example",
+  "mode": "local_test_demo",
+  "allowed_network_domains": [
+    {
+      "domain": "localhost",
+      "purpose": "Local Next.js app and demo callbacks"
+    },
+    {
+      "domain": "api.stripe.com",
+      "purpose": "Stripe test-mode product, price, checkout, and webhook API calls"
+    },
+    {
+      "domain": "checkout.stripe.com",
+      "purpose": "Stripe-hosted Checkout redirect in test mode"
+    },
+    {
+      "domain": "mcp.stripe.com",
+      "purpose": "Future Stripe MCP/tooling integration boundary"
+    },
+    {
+      "domain": "portal.nousresearch.com",
+      "purpose": "Optional Nous provider configuration reference"
+    },
+    {
+      "domain": "build.nvidia.com",
+      "purpose": "Optional NVIDIA-hosted model/runtime configuration reference"
+    }
+  ],
+  "blocked_network_categories": [
+    "unknown ad networks",
+    "crypto trading sites",
+    "unapproved SaaS billing pages"
+  ],
+  "notes": "This file is an example manifest for a controlled runtime. The hackathon demo does not enforce OS-level network sandboxing by itself."
+}

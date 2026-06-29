@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "ventureops-autopilot": {
+      "command": "node",
+      "args": ["scripts/mcp-server.mjs"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "VENTUREOPS_APP_URL": "http://localhost:3000"
+      }
+    }
+  }
+}

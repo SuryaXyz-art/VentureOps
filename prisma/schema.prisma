@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model DemoRun {
+  id               String         @id @default(cuid())
+  goal             String
+  budgetCents      Int
+  revenueCents     Int
+  costCents        Int
+  profitCents      Int
+  blockedRiskCents Int
+  checkoutUrl      String
+  createdAt        DateTime       @default(now())
+  events           AgentEvent[]
+  receipts         AuditReceipt[]
+}
+
+model BusinessRun {
+  id                String             @id @default(cuid())
+  goal              String
+  mode              String             @default("demo")
+  status            String             @default("created")
+  budgetCents       Int                @default(2500)
+  revenueCents      Int                @default(0)
+  costCents         Int                @default(0)
+  profitCents       Int                @default(0)
+  blockedRiskCents  Int                @default(0)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  agentEvents       AgentEvent[]
+  spendRequests     SpendRequest[]
+  policyDecisions   PolicyDecision[]
+  receipts          Receipt[]
+  customerOrders    CustomerOrder[]
+  stripeEvents      StripeEvent[]
+  profitLossReports ProfitLossReport[]
+  fulfillmentReports FulfillmentReport[]
+}
+
+model AgentEvent {
+  id            String       @id @default(cuid())
+  runId         String?
+  run           DemoRun?     @relation(fields: [runId], references: [id], onDelete: Cascade)
+  businessRunId String?
+  businessRun   BusinessRun? @relation(fields: [businessRunId], references: [id], onDelete: Cascade)
+  role          String
+  title         String
+  detail        String
+  status        String
+  amountCents   Int?
+  payloadJson   String?
+  createdAt     DateTime     @default(now())
+}
+
+model SpendRequest {
+  id            String       @id @default(cuid())
+  businessRunId String?
+  businessRun   BusinessRun? @relation(fields: [businessRunId], references: [id], onDelete: Cascade)
+  vendor        String
+  amountCents   Int
+  category      String
+  reason        String
+  riskLevel     String
+  status        String       @default("requested")
+  createdAt     DateTime     @default(now())
+}
+
+model PolicyDecision {
+  id               String       @id @default(cuid())
+  businessRunId    String?
+  businessRun      BusinessRun? @relation(fields: [businessRunId], references: [id], onDelete: Cascade)
+  spendRequestRef  String
+  decision         String
+  reason           String
+  matchedRulesJson String
+  remainingCents   Int
+  receiptRequired  Boolean
+  riskScore        Int
+  createdAt        DateTime     @default(now())
+}
+
+model Receipt {
+  id            String       @id @default(cuid())
+  businessRunId String?
+  businessRun   BusinessRun? @relation(fields: [businessRunId], references: [id], onDelete: Cascade)
+  source        String
+  amountCents   Int
+  decision      String
+  note          String
+  externalId    String?
+  createdAt     DateTime     @default(now())
+}
+
+model AuditReceipt {
+  id          String   @id @default(cuid())
+  runId       String
+  run         DemoRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  source      String
+  amountCents Int
+  decision    String
+  note        String
+  createdAt   DateTime @default(now())
+}
+
+model CustomerOrder {
+  id               String              @id @default(cuid())
+  businessRunId    String?
+  businessRun      BusinessRun?        @relation(fields: [businessRunId], references: [id], onDelete: Cascade)
+  customerEmail    String?
+  customerName     String?
+  productName      String
+  amountCents      Int
+  currency         String              @default("usd")
+  status           String              @default("pending")
+  stripeCheckoutId String?
+  stripeCustomerId String?
+  mode             String              @default("demo")
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  reports          FulfillmentReport[]
+}
+
+model FulfillmentReport {
+  id            String        @id @default(cuid())
+  businessRunId String?
+  businessRun   BusinessRun?  @relation(fields: [businessRunId], references: [id], onDelete: Cascade)
+  orderId       String?
+  order         CustomerOrder? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  title         String
+  markdown      String
+  sectionsJson  String
+  status        String        @default("delivered")
+  provider      String        @default("mock")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model StripeEvent {
+  id            String       @id @default(cuid())
+  businessRunId String?
+  businessRun   BusinessRun? @relation(fields: [businessRunId], references: [id], onDelete: SetNull)
+  stripeEventId String       @unique
+  type          String
+  payloadJson   String
+  createdAt     DateTime     @default(now())
+}
+
+model ProfitLossReport {
+  id               String       @id @default(cuid())
+  businessRunId    String?
+  businessRun      BusinessRun? @relation(fields: [businessRunId], references: [id], onDelete: Cascade)
+  revenueCents     Int
+  costCents        Int
+  profitCents      Int
+  blockedRiskCents Int
+  notes            String
+  createdAt        DateTime     @default(now())
+}

@@ -1,0 +1,24 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="VentureOps Autopilot OG image">
+  <defs>
+    <radialGradient id="g1" cx="18%" cy="12%" r="70%"><stop offset="0" stop-color="#2fd2b8" stop-opacity="0.35"/><stop offset="1" stop-color="#090d16" stop-opacity="0"/></radialGradient>
+    <radialGradient id="g2" cx="88%" cy="8%" r="60%"><stop offset="0" stop-color="#f5aa42" stop-opacity="0.28"/><stop offset="1" stop-color="#090d16" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#090d16"/>
+  <rect width="1200" height="630" fill="url(#g1)"/>
+  <rect width="1200" height="630" fill="url(#g2)"/>
+  <g opacity="0.16" stroke="#eefafa"><path d="M0 90h1200M0 180h1200M0 270h1200M0 360h1200M0 450h1200M0 540h1200M120 0v630M240 0v630M360 0v630M480 0v630M600 0v630M720 0v630M840 0v630M960 0v630M1080 0v630"/></g>
+  <rect x="72" y="72" width="96" height="96" rx="20" fill="#2fd2b8"/>
+  <path d="M94 130h52v16H94z" fill="#090d16"/>
+  <path d="M100 94h42l-10 29h-22z" fill="#f5aa42"/>
+  <text x="72" y="255" font-family="Inter, Arial, sans-serif" font-size="72" font-weight="800" fill="#eefafa">VentureOps Autopilot</text>
+  <text x="76" y="322" font-family="Inter, Arial, sans-serif" font-size="32" fill="#9cc8c5">Launch. Earn. Spend. Fulfill. Audit.</text>
+  <text x="76" y="384" font-family="Inter, Arial, sans-serif" font-size="28" fill="#f5aa42">Agentic Business Control Tower for safe micro-business operations</text>
+  <g transform="translate(76 455)">
+    <rect width="210" height="58" rx="12" fill="#101724" stroke="#2fd2b8" stroke-opacity="0.45"/>
+    <text x="22" y="38" font-family="Inter, Arial, sans-serif" font-size="22" fill="#eefafa">$19 revenue</text>
+    <rect x="235" width="180" height="58" rx="12" fill="#101724" stroke="#2fd2b8" stroke-opacity="0.45"/>
+    <text x="257" y="38" font-family="Inter, Arial, sans-serif" font-size="22" fill="#eefafa">$13 profit</text>
+    <rect x="440" width="220" height="58" rx="12" fill="#101724" stroke="#ef4444" stroke-opacity="0.45"/>
+    <text x="462" y="38" font-family="Inter, Arial, sans-serif" font-size="22" fill="#eefafa">$60 blocked</text>
+  </g>
+</svg>

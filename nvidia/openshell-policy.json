@@ -1,0 +1,92 @@
+﻿{
+  "name": "ventureops-autopilot-openshell-policy",
+  "version": "0.2.0",
+  "mode": "local_test_demo",
+  "allowed_network_domains": [
+    "localhost",
+    "api.stripe.com",
+    "checkout.stripe.com",
+    "mcp.stripe.com",
+    "portal.nousresearch.com",
+    "build.nvidia.com"
+  ],
+  "blocked_network_domains": [
+    "unknown ad networks",
+    "crypto trading sites",
+    "unapproved SaaS billing pages"
+  ],
+  "secret_handling": {
+    "no_env_var_printing": true,
+    "no_card_details_in_logs": true,
+    "redact_api_keys": true,
+    "redact_patterns": [
+      "sk_test_*",
+      "pk_test_*",
+      "whsec_*",
+      "nvapi-*",
+      "nous-*"
+    ]
+  },
+  "spend_controls": {
+    "currency": "USD",
+    "max_single_spend": 10,
+    "max_total_budget": 25,
+    "require_receipt": true,
+    "require_user_approval_above_threshold": 8
+  },
+  "approval_rules": [
+    {
+      "id": "allow_public_low_risk_data",
+      "effect": "allow",
+      "conditions": {
+        "category": ["data"],
+        "risk": ["low"],
+        "amount_lte": 8,
+        "vendor_allowlisted": true,
+        "requires_declared_reason": true
+      }
+    },
+    {
+      "id": "needs_approval_medium_or_threshold",
+      "effect": "needs_approval",
+      "conditions": {
+        "risk": ["medium"],
+        "amount_gt": 8
+      }
+    },
+    {
+      "id": "block_high_risk_spend",
+      "effect": "deny",
+      "conditions": {
+        "risk": ["high"]
+      }
+    },
+    {
+      "id": "block_unapproved_network_or_vendor",
+      "effect": "deny",
+      "conditions": {
+        "vendor_allowlisted": false
+      }
+    },
+    {
+      "id": "block_budget_overrun",
+      "effect": "deny",
+      "conditions": {
+        "amount_gt_remaining_budget": true
+      }
+    }
+  ],
+  "audit": {
+    "record_receipts": true,
+    "record_blocked_actions": true,
+    "record_policy_reason": true,
+    "record_matched_policy": true,
+    "record_hash_like_proof": true
+  },
+  "runtime_boundaries": {
+    "credential_boundary": "Secrets remain in environment variables and are never printed to UI or logs.",
+    "network_boundary": "Outbound domains are documented through an allowlist and unsafe categories are blocked.",
+    "spend_boundary": "Every spend request is evaluated before execution against budget, vendor, category, and risk policy.",
+    "audit_boundary": "All decisions create receipts with timestamp, agent, action, reason, policy, and proof reference."
+  }
+}

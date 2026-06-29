@@ -1,0 +1,18 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#07110f"/>
+  <rect x="48" y="48" width="1184" height="624" rx="18" fill="#0d1916" stroke="#2fd2b8" stroke-opacity="0.45"/>
+  <circle cx="1080" cy="120" r="110" fill="#2fd2b8" opacity="0.12"/>
+  <text x="92" y="150" fill="#e8fff9" font-family="Inter,Arial,sans-serif" font-size="64" font-weight="700">Live Run</text>
+  <text x="96" y="210" fill="#93aaa4" font-family="Inter,Arial,sans-serif" font-size="28">BusinessRun, agent events, checkout session, and approval queue from Prisma</text>
+  <rect x="96" y="286" width="1088" height="72" rx="10" fill="#13231f" stroke="#263d37"/>
+  <rect x="96" y="386" width="340" height="170" rx="10" fill="#101d1a" stroke="#263d37"/>
+  <rect x="470" y="386" width="340" height="170" rx="10" fill="#101d1a" stroke="#263d37"/>
+  <rect x="844" y="386" width="340" height="170" rx="10" fill="#101d1a" stroke="#263d37"/>
+  <text x="124" y="333" fill="#2fd2b8" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="700">VentureOps Autopilot proof-mode screenshot placeholder</text>
+  <text x="124" y="450" fill="#e8fff9" font-family="Inter,Arial,sans-serif" font-size="32" font-weight="700">Stripe</text>
+  <text x="498" y="450" fill="#e8fff9" font-family="Inter,Arial,sans-serif" font-size="32" font-weight="700">Hermes</text>
+  <text x="872" y="450" fill="#e8fff9" font-family="Inter,Arial,sans-serif" font-size="32" font-weight="700">Audit</text>
+  <text x="124" y="500" fill="#93aaa4" font-family="Inter,Arial,sans-serif" font-size="22">Test-mode revenue</text>
+  <text x="498" y="500" fill="#93aaa4" font-family="Inter,Arial,sans-serif" font-size="22">Nemotron planning</text>
+  <text x="872" y="500" fill="#93aaa4" font-family="Inter,Arial,sans-serif" font-size="22">Receipts and P&amp;L</text>
+</svg>

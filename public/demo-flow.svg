@@ -1,0 +1,17 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-label="VentureOps demo flow diagram">
+  <rect width="1200" height="420" rx="24" fill="#090d16"/>
+  <g font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">
+    <g transform="translate(40 150)"><rect width="120" height="64" rx="12" fill="#101724" stroke="#2fd2b8"/><text x="33" y="39" fill="#eefafa">Goal</text></g>
+    <g transform="translate(190 150)"><rect width="120" height="64" rx="12" fill="#101724" stroke="#2fd2b8"/><text x="40" y="39" fill="#eefafa">Plan</text></g>
+    <g transform="translate(340 150)"><rect width="120" height="64" rx="12" fill="#101724" stroke="#2fd2b8"/><text x="25" y="39" fill="#eefafa">Budget</text></g>
+    <g transform="translate(490 150)"><rect width="120" height="64" rx="12" fill="#101724" stroke="#f5aa42"/><text x="39" y="39" fill="#eefafa">Sell</text></g>
+    <g transform="translate(640 150)"><rect width="120" height="64" rx="12" fill="#101724" stroke="#2fd2b8"/><text x="28" y="39" fill="#eefafa">Fulfill</text></g>
+    <g transform="translate(790 150)"><rect width="120" height="64" rx="12" fill="#101724" stroke="#2fd2b8"/><text x="30" y="39" fill="#eefafa">Spend</text></g>
+    <g transform="translate(940 150)"><rect width="120" height="64" rx="12" fill="#101724" stroke="#ef4444"/><text x="39" y="39" fill="#eefafa">Risk</text></g>
+    <g transform="translate(1090 150)"><rect width="80" height="64" rx="12" fill="#101724" stroke="#2fd2b8"/><text x="18" y="39" fill="#eefafa">Audit</text></g>
+  </g>
+  <g stroke="#8fb8b6" stroke-width="3" fill="none" marker-end="url(#arrow)"><path d="M160 182h30M310 182h30M460 182h30M610 182h30M760 182h30M910 182h30M1060 182h30"/></g>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0l10 5-10 5z" fill="#8fb8b6"/></marker></defs>
+  <text x="40" y="72" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="#eefafa">90-second judge demo flow</text>
+  <text x="40" y="318" font-family="Inter, Arial, sans-serif" font-size="24" fill="#f5aa42">Earn $19 | Spend $6 safely | Block $60 risk | Profit $13</text>
+</svg>
