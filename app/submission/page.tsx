@@ -28,7 +28,7 @@ export default function SubmissionPage() {
           <Card>
             <CardHeader><CardTitle>Links</CardTitle></CardHeader>
             <CardContent className="grid gap-3 text-sm">
-              <Placeholder label="GitHub" value="https://github.com/your-org/ventureops-autopilot" />
+              <Placeholder label="GitHub" value="https://github.com/SuryaXyz-art/VentureOps" />
               <Placeholder label="Live demo" value="https://your-demo-url.example" />
               <Placeholder label="Tweet" value="https://x.com/your-post" />
               <Placeholder label="Video" value="https://youtube.com/your-demo-video" />

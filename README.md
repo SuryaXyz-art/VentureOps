@@ -167,7 +167,7 @@ Then configure your MCP client with:
     "ventureops-autopilot": {
       "command": "node",
       "args": ["scripts/mcp-server.mjs"],
-      "cwd": "C:\\Users\\msi\\Documents\\VentureOps Autopilot",
+      "cwd": ".",
       "env": {
         "VENTUREOPS_APP_URL": "http://localhost:3000"
       }
