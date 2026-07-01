@@ -17,7 +17,7 @@ export function runStripeAgent(plan: BusinessPlan) {
     id: "evt_stripe_prepare",
     role: "Stripe",
     title: "Stripe agent prepares paid offer",
-    detail: `${stripe.productName} prepared at $${stripe.price} with a test customer placeholder.`,
+    detail: `${stripe.productName} prepared at $${stripe.price} with a test customer record prepared for checkout reconciliation.`,
     status: "approved",
     amount: stripe.price,
     action: "prepare_stripe_offer",

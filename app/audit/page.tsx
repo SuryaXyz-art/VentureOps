@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Filter, ShieldCheck } from "lucide-react";
+import { BarChart3, FileJson, Filter, ReceiptText, ShieldCheck } from "lucide-react";
 import { ExportJsonButton } from "@/components/audit/export-json-button";
 import { ReceiptCard, type AuditReceiptView } from "@/components/audit/receipt-card";
 import { SiteHeader } from "@/components/marketing/site-header";
@@ -58,7 +58,9 @@ export default function AuditPage() {
     (status === all || receipt.status === status)
   ), [agent, decision, receipts, status]);
 
-  const exportJson = JSON.stringify({ receipts, operations: steps }, null, 2);
+  const blockedCount = receipts.filter((receipt) => receipt.decision === "blocked").length;
+  const approvedCount = receipts.filter((receipt) => receipt.decision === "approved").length;
+  const exportJson = JSON.stringify({ exportedAt: new Date().toISOString(), runtime, filters: { agent, decision, status }, receiptCount: receipts.length, eventCount: steps.length, receipts, operations: steps }, null, 2);
 
   return (
     <main className="min-h-screen overflow-hidden">
@@ -74,6 +76,21 @@ export default function AuditPage() {
             <ExportJsonButton json={exportJson} />
           </div>
           {error ? <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error}</div> : null}
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-lg border border-primary/25 bg-primary/10 p-4">
+              <div className="flex items-center gap-2 text-primary"><ReceiptText className="size-4" /><span className="text-sm font-medium">Receipts</span></div>
+              <p className="mt-3 text-3xl font-semibold">{receipts.length}</p>
+            </div>
+            <div className="rounded-lg border border-border/70 bg-background/45 p-4">
+              <div className="flex items-center gap-2 text-muted-foreground"><BarChart3 className="size-4" /><span className="text-sm font-medium">Approved / blocked</span></div>
+              <p className="mt-3 text-3xl font-semibold">{approvedCount} / {blockedCount}</p>
+            </div>
+            <div className="rounded-lg border border-border/70 bg-background/45 p-4">
+              <div className="flex items-center gap-2 text-muted-foreground"><FileJson className="size-4" /><span className="text-sm font-medium">Export payload</span></div>
+              <p className="mt-3 text-3xl font-semibold">{steps.length}</p>
+              <p className="mt-1 text-xs text-muted-foreground">agent events</p>
+            </div>
+          </div>
         </Card>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[0.82fr_1.18fr]">
@@ -103,4 +120,6 @@ export default function AuditPage() {
 function EmptyState({ text }: { text: string }) {
   return <div className="rounded-lg border border-border/70 bg-background/45 p-8 text-center text-muted-foreground">{text}</div>;
 }
+
+
 

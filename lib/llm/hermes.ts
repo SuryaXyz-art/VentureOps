@@ -49,7 +49,7 @@ type HermesChatResponse = {
 };
 
 export function getHermesBaseUrl() {
-  return (process.env.HERMES_BASE_URL ?? "http://127.0.0.1:8642/v1").replace(/\/$/, "");
+  return (process.env.HERMES_BASE_URL ?? process.env.HERMES_API_URL ?? "http://127.0.0.1:8642/v1").replace(/\/$/, "");
 }
 
 export function getHermesModel() {

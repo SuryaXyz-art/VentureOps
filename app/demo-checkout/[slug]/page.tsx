@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +16,7 @@ export default function DemoCheckoutPage() {
         <CardContent className="space-y-4">
           <p className="text-sm leading-6 text-muted-foreground">
             Stripe test keys were not required for this path. The system records a simulated $19
-            customer order so judges can verify the full earning, fulfillment, spend-control, and
+            customer order so users can verify the full earning, fulfillment, spend-control, and
             audit loop.
           </p>
           <Button asChild>
@@ -27,5 +27,6 @@ export default function DemoCheckoutPage() {
     </main>
   );
 }
+
 
 

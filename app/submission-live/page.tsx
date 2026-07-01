@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { Activity, BadgeCheck, Boxes, CreditCard, FileJson, Workflow } from "lucide-react";
 import { ExportJsonButton } from "@/components/audit/export-json-button";
 import { SiteHeader } from "@/components/marketing/site-header";
@@ -25,11 +25,11 @@ export default async function SubmissionLivePage() {
       <SiteHeader />
       <section className="container pb-10 pt-4">
         <Card className="grid-radar border-primary/25 p-6 sm:p-8">
-          <div className="flex flex-wrap gap-2"><Badge>Live Submission Proof</Badge><Badge>Stripe test mode</Badge><Badge>Hermes/Nemotron ready</Badge></div>
+          <div className="flex flex-wrap gap-2"><Badge>Live Product Proof</Badge><Badge>Stripe test mode</Badge><Badge>Hermes/Nemotron ready</Badge></div>
           <div className="mt-5 grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
             <div>
               <h1 className="text-4xl font-semibold sm:text-6xl">VentureOps Autopilot proves agents can run a business safely.</h1>
-              <p className="mt-5 max-w-4xl text-lg leading-8 text-muted-foreground">A judge can see the live runtime, start a real Stripe test-mode checkout, inspect Hermes/Nemotron status, verify receipts, and confirm P&L from Prisma records in one screen.</p>
+              <p className="mt-5 max-w-4xl text-lg leading-8 text-muted-foreground">A user can see the live runtime, start a real Stripe test-mode checkout, inspect Hermes/Nemotron status, verify receipts, and confirm P&L from Prisma records in one screen.</p>
             </div>
             <RunLiveTestDemoButton />
           </div>
@@ -44,17 +44,18 @@ export default async function SubmissionLivePage() {
               <StatusPill label="Runtime mode" value={snapshot.runtime.mode} tone={snapshot.runtime.demoMode ? "warn" : "good"} />
               <StatusPill label="Stripe configured" value={String(snapshot.runtime.stripeConfigured)} tone={snapshot.runtime.stripeConfigured ? "good" : "warn"} />
               <StatusPill label="Hermes provider" value={snapshot.hermes.provider} tone={snapshot.hermes.provider === "hermes" ? "good" : "warn"} />
-              <StatusPill label="Hermes connected" value={String(snapshot.hermes.connected)} tone={snapshot.hermes.connected ? "good" : "warn"} />
+              <StatusPill label="Creative provider status" value={snapshot.hermes.connected ? "ready" : "offline fallback available"} tone={snapshot.hermes.connected ? "good" : "warn"} />
               <StatusPill label="Latest run" value={snapshot.proof.businessRunId ?? "none"} />
               <StatusPill label="Latest webhook" value={snapshot.stripe.latestWebhookEventId ?? "none"} />
             </CardContent>
           </Card>
         </div>
 
-        <div className="mt-5 grid gap-5 lg:grid-cols-3">
+        <div className="mt-5 grid gap-5 lg:grid-cols-4">
           <InfoCard icon={Workflow} title="1. Start Run">CEO and Growth use Hermes/Nemotron when configured, while CFO policy and risk remain deterministic.</InfoCard>
           <InfoCard icon={CreditCard} title="2. Earn Revenue">Stripe test mode creates a reusable product/price, Checkout Session, CustomerOrder, and webhook reconciliation.</InfoCard>
           <InfoCard icon={FileJson} title="3. Prove Control">Receipts, policy decisions, blocked spend, and P&L are exported from Prisma-backed audit records.</InfoCard>
+          <InfoCard icon={Boxes} title="Runtime Proof Boundary">NemoClaw/OpenShell enforcement must be shown in terminal proof when the sandbox is running. VentureOps itself enforces app-level spend policy, approvals, and audit records.</InfoCard>
         </div>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
@@ -79,9 +80,9 @@ Audit + Profit/Loss + Submission Proof Panel`}</pre>
           </Card>
 
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><BadgeCheck className="size-4 text-primary" /> Judge Actions</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><BadgeCheck className="size-4 text-primary" /> User Actions</CardTitle></CardHeader>
             <CardContent className="grid gap-3">
-              <Button asChild><Link href="/judge-demo">Open Judge Demo</Link></Button>
+              <Button asChild><Link href="/judge-demo">Open Demo</Link></Button>
               <Button asChild variant="outline"><Link href="/approvals">Open Approval Queue</Link></Button>
               <Button asChild variant="outline"><Link href="/audit">Open Audit Receipts</Link></Button>
               <ExportJsonButton json={auditExport} filename="ventureops-live-audit-proof.json" />
@@ -96,3 +97,6 @@ Audit + Profit/Loss + Submission Proof Panel`}</pre>
 function InfoCard({ icon: Icon, title, children }: { icon: typeof Workflow; title: string; children: React.ReactNode }) {
   return <Card><CardContent className="p-5"><div className="flex items-center gap-2"><div className="flex size-9 items-center justify-center rounded-md bg-primary/10 text-primary"><Icon className="size-4" /></div><h2 className="font-semibold">{title}</h2></div><p className="mt-3 text-sm leading-6 text-muted-foreground">{children}</p></CardContent></Card>;
 }
+
+
+

@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { SearchX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,10 +12,11 @@ export default function NotFound() {
           <CardTitle>Page not found</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm leading-6 text-muted-foreground">This route is not part of the VentureOps judge flow.</p>
-          <Button asChild><Link href="/judge-demo">Open Judge Demo</Link></Button>
+          <p className="text-sm leading-6 text-muted-foreground">This route is not part of the VentureOps product flow.</p>
+          <Button asChild><Link href="/judge-demo">Open Demo</Link></Button>
         </CardContent>
       </Card>
     </main>
   );
 }
+

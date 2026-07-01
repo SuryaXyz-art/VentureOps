@@ -37,8 +37,8 @@ const emptyPnl: PnlSnapshot = {
   budgetRemaining: 0,
   customerCount: 0,
   fulfillmentStatus: "No orders yet",
-  nextRecommendedAction: "Create a Stripe test checkout or run explicit demo mode to populate the control tower.",
-  summary: "No live business records yet. The control tower is waiting for a Stripe test checkout, order, spend decision, or explicit demo run.",
+  nextRecommendedAction: "Start a business run or complete a Stripe test checkout to populate the control tower.",
+  summary: "No live business records yet. VentureOps is waiting for a Stripe test checkout, customer order, spend decision, or business run.",
   hasData: false
 };
 
@@ -50,8 +50,8 @@ export default function ProfitLossPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function load() {
-      setLoading(true);
+  async function load(showLoading = false) {
+      if (showLoading) setLoading(true);
       try {
         const [pnlResponse, runtimeResponse] = await Promise.all([
           fetch("/api/pnl", { cache: "no-store" }),
@@ -63,13 +63,13 @@ export default function ProfitLossPage() {
       } catch (loadError) {
         setError(loadError instanceof Error ? loadError.message : "Unable to load P&L data");
       } finally {
-        setLoading(false);
+        if (showLoading) setLoading(false);
       }
     }
 
   useEffect(() => {
-    void load();
-    const id = window.setInterval(() => void load(), 3000);
+    void load(true);
+    const id = window.setInterval(() => void load(false), 5000);
     return () => window.clearInterval(id);
   }, []);
 
@@ -91,8 +91,8 @@ export default function ProfitLossPage() {
       <section className="container pb-10 pt-4">
         <Card className="grid-radar border-primary/25 p-6 sm:p-8">
           <div className="flex flex-wrap gap-2"><Badge>P&L Dashboard</Badge>{runtime ? (runtime.mode === "live_test" ? <Badge>Live test mode</Badge> : <Badge>Demo fallback enabled</Badge>) : <Badge>Checking runtime...</Badge>}</div>
-          <h1 className="mt-5 text-4xl font-semibold sm:text-6xl">Judge-facing business outcome.</h1>
-          <div className="mt-5 flex flex-col justify-between gap-4 lg:flex-row lg:items-end"><p className="max-w-4xl text-lg leading-8 text-muted-foreground">{loading ? "Loading live P&L from Prisma..." : pnl.summary}</p><Button variant="outline" onClick={load} disabled={loading}><RefreshCw className="size-4" /> Refresh from DB</Button></div>
+          <h1 className="mt-5 text-4xl font-semibold sm:text-6xl">Business outcome.</h1>
+          <div className="mt-5 flex flex-col justify-between gap-4 lg:flex-row lg:items-end"><p className="max-w-4xl text-lg leading-8 text-muted-foreground">{loading ? "Loading live P&L from Prisma..." : pnl.summary}</p><Button variant="outline" onClick={() => load(true)} disabled={loading}><RefreshCw className="size-4" /> Refresh from DB</Button></div>
           {error ? <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error}</div> : null}
         </Card>
 
@@ -118,5 +118,8 @@ export default function ProfitLossPage() {
     </main>
   );
 }
+
+
+
 
 

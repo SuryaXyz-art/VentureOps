@@ -67,9 +67,9 @@ export function RunLiveTestDemoButton() {
 
   return (
     <div className="space-y-3">
-      {llmConnected === false ? <div className="rounded-lg border border-amber-300/40 bg-amber-400/10 p-3 text-sm text-amber-100">Hermes not connected. Start NemoHermes on port 8642 or use explicit demo mode for offline backup.{llmError ? ` ${llmError}` : ""}</div> : null}
+      {llmConnected === false ? <div className="rounded-lg border border-amber-300/40 bg-amber-400/10 p-3 text-sm text-amber-100">Creative provider is offline. Start NemoHermes on port 8642 for live LLM planning, or use explicit demo mode for offline backup.{llmError ? ` ${llmError}` : ""}</div> : null}
       <div className="flex flex-wrap gap-3">
-        <Button size="lg" onClick={runLiveDemo} disabled={loading}><Play className="size-4" /> {loading ? "Starting..." : "Run Live Test Demo"}</Button>
+        <Button size="lg" onClick={runLiveDemo} disabled={loading}><Play className="size-4" /> {loading ? "Starting..." : "Start Live Test Run"}</Button>
         <Button size="lg" variant="outline" onClick={() => window.location.reload()}><RefreshCw className="size-4" /> Refresh proof</Button>
         <Button size="lg" variant="outline" asChild><a href="/stripe-revenue"><ExternalLink className="size-4" /> Revenue panel</a></Button>
       </div>
@@ -77,5 +77,6 @@ export function RunLiveTestDemoButton() {
     </div>
   );
 }
+
 
 

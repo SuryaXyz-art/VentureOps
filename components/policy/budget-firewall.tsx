@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import type { Route } from "next";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, KeyRound, Network, ReceiptText, RefreshCw, ShieldCheck, SlidersHorizontal, WalletCards } from "lucide-react";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +27,7 @@ const safeRuntimeBoundaries = [
 
 type SpendRequestRow = { id: string; vendor: string; amountCents: number; category: string; reason: string; riskLevel: string; status: string; createdAt: string };
 type PolicyDecisionRow = { id: string; spendRequestRef: string; decision: PolicyDecision; reason: string; matchedRulesJson: string; remainingCents: number; riskScore: number };
-type RunPayload = { id: string; status: string; budgetCents: number; costCents: number; blockedRiskCents: number; spendRequests: SpendRequestRow[]; policyDecisions: PolicyDecisionRow[] };
+type RunPayload = { id: string; mode?: string; status: string; budgetCents: number; costCents: number; blockedRiskCents: number; spendRequests: SpendRequestRow[]; policyDecisions: PolicyDecisionRow[] };
 
 function currency(value: number) {
   return `$${value.toFixed(2)}`;
@@ -51,29 +51,33 @@ export function BudgetFirewall() {
   const [run, setRun] = useState<RunPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const policyTouchedRef = useRef(false);
+  const syncedRunIdRef = useRef<string | null>(null);
 
-  async function loadRun() {
-    setLoading(true);
+  async function loadRun(showLoading = false) {
+    if (showLoading) setLoading(true);
     setError(null);
     try {
       const response = await fetch("/api/runs/latest", { cache: "no-store" });
       const data = await response.json() as { run?: RunPayload | null; error?: string };
       if (!response.ok) throw new Error(data.error ?? "Unable to load latest run");
       setRun(data.run ?? null);
-      if (data.run) {
-        setPolicy((current) => ({ ...current, totalBudget: cents(data.run!.budgetCents), spentSoFar: cents(data.run!.costCents), mode: data.run!.status === "awaiting_payment" ? "live_test" : current.mode }));
+      if (data.run && !policyTouchedRef.current && syncedRunIdRef.current !== data.run.id) {
+        setPolicy((current) => ({ ...current, totalBudget: cents(data.run!.budgetCents), spentSoFar: cents(data.run!.costCents), mode: data.run!.mode === "stripe_test" ? "live_test" : current.mode }));
+        syncedRunIdRef.current = data.run.id;
       }
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Unable to load latest run");
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }
 
   useEffect(() => {
-    void loadRun();
-    const id = window.setInterval(() => void loadRun(), 3000);
+    void loadRun(true);
+    const id = window.setInterval(() => void loadRun(false), 5000);
     return () => window.clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const decisionBySpend = useMemo(() => new Map((run?.policyDecisions ?? []).map((decision) => [decision.spendRequestRef, decision])), [run]);
@@ -84,6 +88,7 @@ export function BudgetFirewall() {
   const policyJson = JSON.stringify(policy, null, 2);
 
   function updatePolicy<K extends keyof BudgetPolicyConfig>(key: K, value: BudgetPolicyConfig[K]) {
+    policyTouchedRef.current = true;
     setPolicy((current) => ({ ...current, [key]: value }));
   }
 
@@ -108,7 +113,7 @@ export function BudgetFirewall() {
               <h1 className="text-4xl font-semibold sm:text-6xl">Policy-controlled agent spending.</h1>
               <p className="mt-5 max-w-3xl text-lg leading-8 text-muted-foreground">Live spend requests, decisions, and budget totals are loaded from Prisma. Approval queue actions update this view and the P&L.</p>
             </div>
-            <div className="flex flex-wrap gap-3"><Button size="lg" variant="outline" onClick={loadRun} disabled={loading}><RefreshCw className="size-4" /> Refresh from DB</Button><Button size="lg" onClick={exportPolicy}><Download className="size-4" /> Export policy</Button></div>
+            <div className="flex flex-wrap gap-3"><Button size="lg" variant="outline" onClick={() => loadRun(true)} disabled={loading}><RefreshCw className="size-4" /> Refresh from DB</Button><Button size="lg" onClick={exportPolicy}><Download className="size-4" /> Export policy</Button></div>
           </div>
           {error ? <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error}</div> : null}
         </Card>
@@ -154,4 +159,10 @@ export function BudgetFirewall() {
 function EmptyState({ text }: { text: string }) {
   return <div className="rounded-lg border border-border/70 bg-background/45 p-8 text-center text-muted-foreground">{text}</div>;
 }
+
+
+
+
+
+
 

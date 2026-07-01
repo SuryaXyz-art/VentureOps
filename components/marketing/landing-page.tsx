@@ -32,7 +32,7 @@ export function LandingPage() {
               <Button asChild size="lg">
                 <Link href="/demo">
                   <Play className="size-4" />
-                  Run Judge Demo
+                  Run Demo
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline">
@@ -79,3 +79,4 @@ export function LandingPage() {
     </main>
   );
 }
+

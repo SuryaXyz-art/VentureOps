@@ -22,7 +22,7 @@ type DemoStep = {
   status: "queued" | "running" | "approved" | "blocked" | "fulfilled" | "audited" | "complete";
 };
 
-type JudgeRunResponse = { generatedReport?: { provider?: string; warning?: string }; run?: { id?: string } };
+type BusinessRunResponse = { generatedReport?: { provider?: string; warning?: string }; run?: { id?: string } };
 type LlmStatus = { label?: string; provider?: string; model?: string; connected?: boolean; lastError?: string | null; lastResponseId?: string | null; lastContentPreview?: string | null };
 type RuntimeStatus = { demoMode: boolean; mode: "demo" | "live_test" };
 type PnlSnapshot = { revenue: number; approvedCosts: number; netProfit: number; blockedRiskySpend: number; summary: string; hasData: boolean };
@@ -60,7 +60,7 @@ const demoSteps: DemoStep[] = [
   { label: "Spend Agent requests $60 infra upgrade", agent: "Spend", detail: "Requests Production Infra Upgrade before revenue is validated.", status: "running" },
   { label: "Risk Agent blocks it", agent: "Risk", detail: "Blocked category, exceeds max single spend, exceeds budget envelope. Deterministic veto.", status: "blocked" },
   { label: "Audit Agent creates receipts", agent: "Audit", detail: "Records decisions, matched policies, proof references, and mode labels.", status: "audited" },
-  { label: "P&L shows final outcome", agent: "Audit", detail: "Live mode reads P&L from Prisma; explicit demo mode shows the seeded judge outcome.", status: "complete" },
+  { label: "P&L shows final outcome", agent: "Audit", detail: "Live mode reads P&L from Prisma; explicit demo mode shows the seeded business outcome.", status: "complete" },
   { label: "Learning Agent recommends next experiment", agent: "Learning", detail: "Uses Hermes/Nemotron for suggestions when connected, without overriding spend controls.", status: "complete" }
 ];
 
@@ -139,17 +139,17 @@ export function JudgeDemoPage() {
             })
           });
       window.clearTimeout(timeout);
-      const data = (await response.json()) as JudgeRunResponse & { error?: string };
+      const data = (await response.json()) as BusinessRunResponse & { error?: string };
       if (!response.ok) throw new Error(data.error ?? `Workflow returned ${response.status}`);
       if (data.run?.id) setRunId(data.run.id);
       if (data.generatedReport?.warning) setRunWarning(data.generatedReport.warning);
-      setRunStatus(data.run?.id ? `Business run ${data.run.id} started. Playing judge timeline.` : "Demo workflow complete. Playing judge timeline.");
+      setRunStatus(data.run?.id ? `Business run ${data.run.id} started. Playing business timeline.` : "Demo workflow complete. Playing business timeline.");
       await loadLiveData();
       playTimeline();
     } catch (error) {
       const message = error instanceof DOMException && error.name === "AbortError" ? "Workflow timed out. Check Hermes, Stripe, and webhook services." : error instanceof Error ? error.message : "Workflow unavailable.";
       setRunWarning(message);
-      setRunStatus(message.includes("Hermes") ? "Hermes not connected. Fix LLM configuration or use /judge-demo?mode=demo." : "Business run failed. Check configuration and try again.");
+      setRunStatus(message.includes("Hermes") ? "Creative provider is offline. Start NemoHermes or use /judge-demo?mode=demo." : "Business run failed. Check configuration and try again.");
       setRunning(false);
     }
   }
@@ -187,18 +187,18 @@ export function JudgeDemoPage() {
       <section className="container pb-10 pt-4">
         <Card className="grid-radar relative overflow-hidden border-primary/25 p-6 sm:p-8">
           {complete ? <CompletionBurst /> : null}
-          <div className="flex flex-wrap gap-2"><Badge>Final Judge Mode</Badge><Badge>{providerLabel}</Badge>{explicitDemo ? <Badge>Explicit demo fallback</Badge> : runtime ? (runtime.mode === "live_test" ? <Badge>Live test mode</Badge> : <Badge>Demo fallback enabled</Badge>) : <Badge>Checking runtime...</Badge>}</div>
+          <div className="flex flex-wrap gap-2"><Badge>Final Demo Mode</Badge><Badge>{providerLabel}</Badge>{explicitDemo ? <Badge>Explicit demo fallback</Badge> : runtime ? (runtime.mode === "live_test" ? <Badge>Live test mode</Badge> : <Badge>Demo fallback enabled</Badge>) : <Badge>Checking runtime...</Badge>}</div>
           <div className="mt-5 grid gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
             <div><h1 className="text-4xl font-semibold sm:text-6xl">Run the full business in 90 seconds.</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-muted-foreground">{pnl.summary}</p><p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">Creative planning is powered by Hermes/Nemotron when connected. Spend control remains deterministic. Hermes never approves spend, changes policy, or receives secrets.</p></div>
-            <div className="grid gap-3 sm:grid-cols-2"><Button size="lg" onClick={runDemo} disabled={running}><Play className="size-4" /> {running ? "Demo running..." : "Run 90-second Judge Demo"}</Button><Button size="lg" variant="outline" onClick={resetDemo}><RotateCcw className="size-4" /> Reset demo</Button><Button size="lg" variant="outline" onClick={copyScript}><Clipboard className="size-4" /> {copied ? "Copied" : "Copy demo script"}</Button><ExportJsonButton json={auditJson} filename="ventureops-judge-audit.json" /></div>
+            <div className="grid gap-3 sm:grid-cols-2"><Button size="lg" onClick={runDemo} disabled={running}><Play className="size-4" /> {running ? "Running workflow..." : "Run 90-second Demo"}</Button><Button size="lg" variant="outline" onClick={resetDemo}><RotateCcw className="size-4" /> Reset demo</Button><Button size="lg" variant="outline" onClick={copyScript}><Clipboard className="size-4" /> {copied ? "Copied" : "Copy demo script"}</Button><ExportJsonButton json={auditJson} filename="ventureops-demo-audit.json" /></div>
           </div>
-          <div className="mt-5 rounded-lg border border-border/70 bg-background/45 p-4 text-sm leading-6 text-muted-foreground"><span className="font-medium text-foreground">Runtime:</span> {runStatus}{runId ? <div className="mt-2">Run ID: <span className="font-mono text-foreground">{runId}</span></div> : null}<div className="mt-2 grid gap-2 md:grid-cols-2"><div>Provider: <span className="text-foreground">{llmStatus?.provider ?? "mock"}</span></div><div>Model: <span className="text-foreground">{llmStatus?.model ?? "mock"}</span></div><div>Connected: <span className="text-foreground">{String(llmStatus?.connected ?? false)}</span></div><div>Response ID: <span className="font-mono text-foreground">{llmStatus?.lastResponseId ?? "none"}</span></div></div>{llmStatus?.lastContentPreview ? <div className="mt-2 line-clamp-2">Preview: {llmStatus.lastContentPreview}</div> : null}{llmStatus?.lastError ? <div className="mt-2 text-amber-200">Hermes last error: {llmStatus.lastError}</div> : null}{runWarning ? <div className="mt-2 text-amber-200">Fallback warning: {runWarning}</div> : null}</div>
+          <div className="mt-5 rounded-lg border border-border/70 bg-background/45 p-4 text-sm leading-6 text-muted-foreground"><span className="font-medium text-foreground">Runtime:</span> {runStatus}{runId ? <div className="mt-2">Run ID: <span className="font-mono text-foreground">{runId}</span></div> : null}<div className="mt-2 grid gap-2 md:grid-cols-2"><div>Provider: <span className="text-foreground">{llmStatus?.provider ?? "mock"}</span></div><div>Model: <span className="text-foreground">{llmStatus?.model ?? "mock"}</span></div><div>Response ID: <span className="font-mono text-foreground">{llmStatus?.lastResponseId ?? "none"}</span></div></div>{llmStatus?.lastContentPreview ? <div className="mt-2 line-clamp-2">Preview: {llmStatus.lastContentPreview}</div> : null}{llmStatus?.lastError ? <div className="mt-2 text-amber-200">Hermes last error: {llmStatus.lastError}</div> : null}{runWarning ? <div className="mt-2 text-amber-200">Fallback warning: {runWarning}</div> : null}</div>
         </Card>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[1.12fr_0.88fr]">
-          <Card><CardHeader><CardTitle>Animated Business Run</CardTitle></CardHeader><CardContent className="space-y-3">{visibleSteps.length === 0 ? <div className="rounded-lg border border-border/70 bg-background/45 p-8 text-center text-muted-foreground">Press Run 90-second Judge Demo to start the autonomous operating loop.</div> : visibleSteps.map((step, index) => (<motion.div key={`${step.label}-${index}`} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className={cn("flex gap-3 rounded-lg border bg-background/45 p-4", step.status === "blocked" ? "border-destructive/40" : "border-border/70")}><AgentAvatar role={step.agent} /><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="font-semibold">{step.label}</p><Badge className={statusClass[step.status]}>{step.status}</Badge></div><p className="mt-1 text-sm leading-6 text-muted-foreground">{step.detail}</p></div></motion.div>))}</CardContent></Card>
+          <Card><CardHeader><CardTitle>Animated Business Run</CardTitle></CardHeader><CardContent className="space-y-3">{visibleSteps.length === 0 ? <div className="rounded-lg border border-border/70 bg-background/45 p-8 text-center text-muted-foreground">Press Run 90-second Demo to start the autonomous operating loop.</div> : visibleSteps.map((step, index) => (<motion.div key={`${step.label}-${index}`} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className={cn("flex gap-3 rounded-lg border bg-background/45 p-4", step.status === "blocked" ? "border-destructive/40" : "border-border/70")}><AgentAvatar role={step.agent} /><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="font-semibold">{step.label}</p><Badge className={statusClass[step.status]}>{step.status}</Badge></div><p className="mt-1 text-sm leading-6 text-muted-foreground">{step.detail}</p></div></motion.div>))}</CardContent></Card>
 
-          <div className="space-y-5"><Card><CardHeader><CardTitle>Final P&L</CardTitle></CardHeader><CardContent className="grid grid-cols-2 gap-3">{[["Revenue", pnl.revenue], ["Costs", pnl.approvedCosts], ["Profit", pnl.netProfit], ["Blocked Risk", pnl.blockedRiskySpend]].map(([label, value]) => <div key={String(label)} className="rounded-lg border border-border/70 bg-background/45 p-3"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-2xl font-semibold">$<AnimatedMetric value={Number(value)} /></p></div>)}</CardContent></Card><Card><CardHeader><CardTitle>Open Panels</CardTitle></CardHeader><CardContent className="grid gap-3"><Button asChild variant="outline"><Link href="/stripe-revenue">Open Stripe revenue panel <ExternalLink className="size-4" /></Link></Button><Button asChild variant="outline"><Link href="/profit-loss">Open P&L report <ExternalLink className="size-4" /></Link></Button><Button asChild variant="outline"><Link href="/audit">Open audit log <FileJson className="size-4" /></Link></Button></CardContent></Card>{complete ? <Card className="border-primary/35 bg-primary/10"><CardContent className="flex items-center gap-3 p-4"><CheckCircle2 className="size-6 text-primary" /><div><p className="font-semibold">Demo complete</p><p className="text-sm text-muted-foreground">Receipts, report, blocked spend, and P&L are ready for judging.</p></div></CardContent></Card> : null}</div>
+          <div className="space-y-5"><Card><CardHeader><CardTitle>Final P&L</CardTitle></CardHeader><CardContent className="grid grid-cols-2 gap-3">{[["Revenue", pnl.revenue], ["Costs", pnl.approvedCosts], ["Profit", pnl.netProfit], ["Blocked Risk", pnl.blockedRiskySpend]].map(([label, value]) => <div key={String(label)} className="rounded-lg border border-border/70 bg-background/45 p-3"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-2xl font-semibold">$<AnimatedMetric value={Number(value)} /></p></div>)}</CardContent></Card><Card><CardHeader><CardTitle>Open Panels</CardTitle></CardHeader><CardContent className="grid gap-3"><Button asChild variant="outline"><Link href="/stripe-revenue">Open Stripe revenue panel <ExternalLink className="size-4" /></Link></Button><Button asChild variant="outline"><Link href="/profit-loss">Open P&L report <ExternalLink className="size-4" /></Link></Button><Button asChild variant="outline"><Link href="/audit">Open audit log <FileJson className="size-4" /></Link></Button></CardContent></Card>{complete ? <Card className="border-primary/35 bg-primary/10"><CardContent className="flex items-center gap-3 p-4"><CheckCircle2 className="size-6 text-primary" /><div><p className="font-semibold">Demo complete</p><p className="text-sm text-muted-foreground">Receipts, report, blocked spend, and P&L are ready for review.</p></div></CardContent></Card> : null}</div>
         </div>
       </section>
     </main>
@@ -208,6 +208,8 @@ export function JudgeDemoPage() {
 function CompletionBurst() {
   return <div className="pointer-events-none absolute inset-0 overflow-hidden">{Array.from({ length: 18 }).map((_, index) => <motion.div key={index} initial={{ opacity: 0, y: 20, x: "50%" }} animate={{ opacity: [0, 1, 0], y: [-10, -120 - (index % 5) * 14], x: `${10 + index * 5}%`, rotate: 180 }} transition={{ duration: 1.4, delay: index * 0.025 }} className="absolute bottom-8 left-1/2 size-2 rounded-sm bg-primary" />)}<motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: [0, 1, 0], scale: [0.8, 1.05, 1] }} transition={{ duration: 1.6 }} className="absolute right-8 top-8 flex items-center gap-2 rounded-lg border border-primary/30 bg-background/80 px-4 py-3 text-primary shadow-glow"><PartyPopper className="size-4" /> Business run complete</motion.div></div>;
 }
+
+
 
 
 

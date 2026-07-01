@@ -18,7 +18,7 @@ const emptyRun: DemoRun = {
   ...seededDemoRun,
   events: [],
   receipts: [],
-  report: "Click Run Judge Demo to execute the seeded business workflow.",
+  report: "Click Run Demo to execute the seeded business workflow.",
   nextActions: ["Waiting for autonomous agents."],
   revenue: 0,
   costs: 0,
@@ -46,7 +46,7 @@ export function JudgeDemoPage() {
       <section className="container pb-10 pt-4">
         <Card className="grid overflow-hidden border-primary/25 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="grid-radar p-6 sm:p-8">
-            <Badge>One-click judge path</Badge>
+            <Badge>One-click demo path</Badge>
             <h1 className="mt-5 text-4xl font-semibold sm:text-6xl">Run the full agent business cycle.</h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
               The seeded scenario launches a Web3 founder research-report service, earns simulated
@@ -55,7 +55,7 @@ export function JudgeDemoPage() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button size="lg" onClick={executeDemo}>
                 <Play className="size-4" />
-                Run Judge Demo
+                Run Demo
               </Button>
               <Button size="lg" variant="outline">
                 <ReceiptText className="size-4" />
@@ -122,3 +122,4 @@ export function JudgeDemoPage() {
     </main>
   );
 }
+

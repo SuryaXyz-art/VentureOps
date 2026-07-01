@@ -39,8 +39,8 @@ export function OrdersPage() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadOrders() {
-    setLoading(true);
+  async function loadOrders(showLoading = false) {
+    if (showLoading) setLoading(true);
     setError(null);
     try {
       const [ordersResponse, runtimeResponse] = await Promise.all([
@@ -55,16 +55,32 @@ export function OrdersPage() {
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Unable to load orders");
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }
 
   useEffect(() => {
-    void loadOrders();
-    const id = window.setInterval(() => void loadOrders(), 3000);
+    void loadOrders(true);
+    const id = window.setInterval(() => void loadOrders(false), 5000);
     return () => window.clearInterval(id);
   }, []);
 
+
+  async function generateReport(orderId: string) {
+    setError(null);
+    try {
+      const response = await fetch("/api/reports/generate", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ orderId })
+      });
+      const data = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(data.error ?? "Unable to generate report");
+      await loadOrders(false);
+    } catch (reportError) {
+      setError(reportError instanceof Error ? reportError.message : "Unable to generate report");
+    }
+  }
   async function createDemoOrder() {
     setCreating(true);
     setError(null);
@@ -72,7 +88,7 @@ export function OrdersPage() {
       const response = await fetch("/api/orders/create-demo", { method: "POST" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Unable to create demo order");
-      await loadOrders();
+      await loadOrders(true);
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : "Unable to create demo order");
     } finally {
@@ -92,7 +108,7 @@ export function OrdersPage() {
               <p className="mt-5 max-w-3xl text-lg leading-8 text-muted-foreground">Orders are loaded from Prisma. When the database is empty, this panel waits for a Stripe test checkout or explicit demo order.</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Button size="lg" variant="outline" onClick={loadOrders} disabled={loading}><RefreshCw className="size-4" /> Refresh</Button>
+              <Button size="lg" variant="outline" onClick={() => loadOrders(true)} disabled={loading}><RefreshCw className="size-4" /> Refresh</Button>
               {runtime?.demoMode ? <Button size="lg" onClick={createDemoOrder} disabled={creating}><Play className="size-4" />{creating ? "Fulfilling..." : "Create Demo Order"}</Button> : null}
             </div>
           </div>
@@ -114,7 +130,7 @@ export function OrdersPage() {
                           <td className="p-3"><p>{order.customerName ?? "Unknown customer"}</p><p className="text-xs text-muted-foreground">{order.customerEmail ?? "No email"}</p></td>
                           <td className="p-3"><p>{order.productName}</p><p className="text-xs text-muted-foreground">${(order.amountCents / 100).toFixed(2)}</p></td>
                           <td className="p-3"><Badge>{order.status}</Badge></td>
-                          <td className="p-3">{order.reportUrl ? <Button asChild size="sm" variant="outline"><Link href={order.reportUrl}><FileText className="size-4" /> Open</Link></Button> : <span className="text-muted-foreground">Not generated</span>}</td>
+                          <td className="p-3">{order.reportUrl ? <Button asChild size="sm" variant="outline"><Link href={order.reportUrl}><FileText className="size-4" /> Open</Link></Button> : order.status === "paid" || order.status === "checkout_created" ? <Button size="sm" variant="outline" onClick={() => generateReport(order.id)}><FileText className="size-4" /> Generate</Button> : <span className="text-muted-foreground">Not generated</span>}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -144,5 +160,7 @@ export function OrdersPage() {
 function EmptyState({ text }: { text: string }) {
   return <div className="rounded-lg border border-border/70 bg-background/45 p-8 text-center text-muted-foreground">{text}</div>;
 }
+
+
 
 

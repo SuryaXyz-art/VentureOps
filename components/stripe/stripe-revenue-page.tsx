@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { CreditCard, ExternalLink, Radio, ReceiptText, RefreshCw, WalletCards } from "lucide-react";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { Badge } from "@/components/ui/badge";
@@ -41,8 +40,8 @@ export function StripeRevenuePage() {
   const [runtime, setRuntime] = useState<RuntimeStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadData() {
-    setDataLoading(true);
+  async function loadData(showLoading = false) {
+    if (showLoading) setDataLoading(true);
     setError(null);
     try {
       const [ordersResponse, eventsResponse, pnlResponse, runtimeResponse] = await Promise.all([
@@ -59,13 +58,13 @@ export function StripeRevenuePage() {
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Unable to load Stripe revenue data");
     } finally {
-      setDataLoading(false);
+      if (showLoading) setDataLoading(false);
     }
   }
 
   useEffect(() => {
-    void loadData();
-    const id = window.setInterval(() => void loadData(), 3000);
+    void loadData(true);
+    const id = window.setInterval(() => void loadData(false), 5000);
     return () => window.clearInterval(id);
   }, []);
 
@@ -105,7 +104,7 @@ export function StripeRevenuePage() {
             <div>
               <h1 className="text-4xl font-semibold sm:text-6xl">Turn the agent offer into test-mode revenue.</h1>
               <p className="mt-5 max-w-3xl text-lg leading-8 text-muted-foreground">
-                Checkout and order records are backed by Prisma. Demo checkout is only allowed when DEMO_MODE=true.
+                Checkout, order records, revenue, and webhook proof are backed by Prisma. Live mode shows configuration errors instead of fake revenue.
               </p>
             </div>
             <Card className="border-primary/30 p-4">
@@ -130,7 +129,7 @@ export function StripeRevenuePage() {
                 <Button className="w-full" size="lg" onClick={startCheckout} disabled={loading}>
                   <CreditCard className="size-4" />{loading ? "Creating checkout..." : "Checkout with Stripe"}<ExternalLink className="size-4" />
                 </Button>
-                <Button className="w-full" size="sm" variant="outline" onClick={loadData} disabled={dataLoading}><RefreshCw className="size-4" /> Refresh live records</Button>
+                <Button className="w-full" size="sm" variant="outline" onClick={() => loadData(true)} disabled={dataLoading}><RefreshCw className="size-4" /> Refresh live records</Button>
                 <p className="text-sm text-muted-foreground">{message}</p>
               </CardContent>
             </Card>
@@ -138,11 +137,11 @@ export function StripeRevenuePage() {
             <Card>
               <CardHeader><CardTitle>Stripe Event Timeline</CardTitle></CardHeader>
               <CardContent className="space-y-3">
-                {dataLoading ? <EmptyState text="Loading Stripe events from Prisma..." /> : events.length > 0 ? events.map((event, index) => (
-                  <motion.div key={event.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="flex gap-3 rounded-lg border border-border/70 bg-background/45 p-3">
+                {dataLoading ? <EmptyState text="Loading Stripe events from Prisma..." /> : events.length > 0 ? events.map((event) => (
+                  <div key={event.id} className="flex gap-3 rounded-lg border border-border/70 bg-background/45 p-3">
                     <div className="mt-1 flex size-8 items-center justify-center rounded-md bg-primary/10 text-primary"><Radio className="size-4" /></div>
                     <div><p className="text-sm font-medium">{event.title}</p><p className="text-sm leading-6 text-muted-foreground">{event.detail}</p></div>
-                  </motion.div>
+                  </div>
                 )) : <EmptyState text="No Stripe agent events have been persisted yet." />}
               </CardContent>
             </Card>
@@ -162,7 +161,7 @@ export function StripeRevenuePage() {
               <CardHeader><CardTitle className="flex items-center gap-2"><ReceiptText className="size-4 text-primary" /> Revenue Notes</CardTitle></CardHeader>
               <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
                 <p>With Stripe keys, checkout redirects to Stripe test mode and webhook/order events are persisted.</p>
-                <p>With DEMO_MODE=false, missing Stripe keys produce a visible configuration error instead of fake revenue.</p>
+                <p>Refresh keeps existing rows visible while new Stripe events or paid orders arrive from the database.</p>
               </CardContent>
             </Card>
           </div>
@@ -175,6 +174,8 @@ export function StripeRevenuePage() {
 function EmptyState({ text }: { text: string }) {
   return <div className="rounded-lg border border-border/70 bg-background/45 p-6 text-center text-muted-foreground">{text}</div>;
 }
+
+
 
 
 

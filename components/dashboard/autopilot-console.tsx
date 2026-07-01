@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
@@ -26,7 +26,7 @@ const initialRun: DemoRun = {
   events: [],
   spendRequests: [],
   receipts: [],
-  report: "Run the judge demo to generate the first fulfilled research report.",
+  report: "Run the demo to generate the first fulfilled research report.",
   nextActions: ["Run the one-click demo to activate agents."]
 };
 
@@ -73,7 +73,7 @@ export function AutopilotConsole() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" onClick={executeDemo} disabled={isPending}>
                   <Play className="size-4" />
-                  {isPending ? "Running agents..." : "Run Judge Demo"}
+                  {isPending ? "Running agents..." : "Run Demo"}
                 </Button>
                 <Button size="lg" variant="outline">
                   <ShieldCheck className="size-4" />
@@ -145,5 +145,6 @@ export function AutopilotConsole() {
     </main>
   );
 }
+
 
 

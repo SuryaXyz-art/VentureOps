@@ -9,7 +9,7 @@ One-line pitch: **Launch. Earn. Spend. Fulfill. Audit. All by autonomous agents,
 - Stripe uses real **test-mode** products, prices, Checkout Sessions, and webhook reconciliation when Stripe keys are configured.
 - Hermes runs through a local OpenAI-compatible endpoint and can use **Nemotron 3 Ultra** when configured.
 - Prisma + SQLite are the source of truth for runs, orders, receipts, Stripe events, spend requests, policy decisions, reports, and P&L.
-- `DEMO_MODE=true` is only a backup/demo path. `DEMO_MODE=false` shows configuration errors instead of fake success.
+- `DEMO_MODE=true` is only a backup/demo path. `DEMO_MODE=false` uses real configured services where available and shows configuration errors or visible fallback notes instead of fake live success.
 
 ## Architecture
 
@@ -36,7 +36,8 @@ Next.js App Router, TypeScript, Tailwind, shadcn-style UI primitives, Framer Mot
 
 ## Key Routes
 
-- `/submission-live` live proof panel for judges
+- `/submission-live` live proof panel for users/operators
+- `/agents` agent management and operator console
 - `/judge-demo` 90-second business run
 - `/stripe-revenue` Stripe checkout and revenue panel
 - `/orders` customer orders
@@ -49,11 +50,13 @@ Next.js App Router, TypeScript, Tailwind, shadcn-style UI primitives, Framer Mot
 
 ## Fresh Clone Setup
 
+Use a clean install on the target OS. Do not copy Windows `node_modules` into Ubuntu/WSL.
+
 ```bash
-npm install
+npm ci
 npx prisma generate
 npx prisma db push
-npm run dev
+npm run dev:quiet
 ```
 
 Open:
@@ -69,15 +72,25 @@ Copy `.env.example` to `.env`.
 ```bash
 APP_URL=http://localhost:3000
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+VENTUREOPS_APP_URL=http://localhost:3000
 DEMO_MODE=true
+AGENT_POLICY_MODE=shadow
 DATABASE_URL="file:./dev.db"
 STRIPE_SECRET_KEY=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 STRIPE_WEBHOOK_SECRET=
-LLM_PROVIDER=mock
+LLM_PROVIDER=hermes
 HERMES_BASE_URL=http://127.0.0.1:8642/v1
+HERMES_API_URL=http://127.0.0.1:8642/v1
 HERMES_MODEL=hermes-agent
 HERMES_API_KEY=
+NOUS_API_KEY=
+NOUS_BASE_URL=
+NOUS_MODEL_ID=
+NVIDIA_API_KEY=
+NVIDIA_BASE_URL=
+NEMOTRON_MODEL_ID=nvidia/nemotron-3-ultra-550b-a55b
+NEMOCLAW_RUNTIME_URL=
 ```
 
 Do not commit API keys.
@@ -132,7 +145,7 @@ curl http://127.0.0.1:8642/v1/chat/completions \
   -d '{"model":"hermes-agent","messages":[{"role":"user","content":"Return JSON {\"status\":\"ok\"}."}],"temperature":0,"max_tokens":40}'
 ```
 
-Creative agents use Hermes/Nemotron. CFO policy, risk, approvals, audit, and P&L remain deterministic.
+Creative agents use Hermes/Nemotron when available. CFO policy, risk, approvals, audit, and P&L remain deterministic. If a creative Hermes call times out, the app records a visible fallback note and uses deterministic content instead of silently pretending the LLM succeeded.
 
 ## Demo Script
 
@@ -176,17 +189,62 @@ Then configure your MCP client with:
 }
 ```
 
-The ready-to-edit example is in `mcp/ventureops-autopilot.mcp.json`.
+The ready-to-edit example is in `mcp/ventureops-autopilot.mcp.json`. The MCP server exposes safe app-level tools only; it does not read or return environment secrets.
 
 Exposed MCP tools: `runtime_status`, `hermes_smoke_test`, `latest_run`, `orders`, `receipts`, `pnl`, `start_business_run`, and `create_stripe_checkout`.
 
 The MCP server never exposes API keys. It calls the local Next.js API; deterministic policy/risk/audit logic remains inside the app.
 
+## Documentation Map
+
+- `docs/ARCHITECTURE.md`: runtime, data, agent, and payment architecture
+- `docs/API.md`: endpoint examples and error format
+- `docs/USER_GUIDE.md`: end-user operating guide
+- `docs/DEMO_WALKTHROUGH.md`: 1-minute and 3-minute demo scripts
+- `docs/HACKATHON_ALIGNMENT.md`: Hermes, Stripe, NVIDIA/NemoClaw alignment
+- `docs/SECURITY_AND_SAFETY.md`: secret handling, spend policy, runtime boundaries
+- `docs/NEMOCLAW_PROOF.md`: terminal proof commands for NemoClaw/OpenShell and Hermes smoke tests
+- `docs/ROADMAP.md`: product roadmap
+- `mcp/README.md`: local MCP stdio server setup
+
+## Release Checklist
+
+Run these commands before packaging or submitting:
+
+```bash
+npm ci
+npx prisma generate
+npx prisma db push
+npm run typecheck
+npm run lint
+npm run build
+npm run policy:test
+npm run verify:live
+```
+
+`npm run verify:live` expects the app server to be running at `APP_URL`, `NEXT_PUBLIC_APP_URL`, or `VENTUREOPS_APP_URL` (default `http://localhost:3000`).
+
+## Packaging Guardrails
+
+Do not include local/runtime artifacts in release zips:
+
+- `.env` or `.env*.local`
+- `node_modules/`
+- `.next/`
+- `.git/`
+- `prisma/dev.db` or SQLite journal files
+- `*.tsbuildinfo`
+- `dev-server*.log`
+
+Only `.env.example` should be packaged, and it must contain placeholders only.
+
 ## Quality Checks
 
 ```bash
+npm run typecheck
 npm run lint
 npm run build
+npm run policy:test
 ```
 
 Optional demo seed, only for demo mode:
@@ -203,7 +261,7 @@ npm run demo
 
 ## Screenshots
 
-Submission screenshot placeholders live in `screenshots/`:
+Submission screenshot placeholders live in `screenshots/`. They are clearly placeholders and can be replaced with captured browser screenshots:
 
 - `live-run.svg`
 - `stripe-checkout.svg`
@@ -212,12 +270,36 @@ Submission screenshot placeholders live in `screenshots/`:
 
 Replace with captured PNGs if the submission form requires browser screenshots.
 
+## API Overview
+
+Core endpoints are documented in `docs/API.md`. The most important routes are:
+
+- `POST /api/runs/start`
+- `GET /api/runs/latest`
+- `POST /api/stripe/create-checkout`
+- `POST /api/stripe/webhook`
+- `GET /api/orders`
+- `GET /api/receipts`
+- `GET /api/pnl`
+- `POST /api/llm/smoke-test`
+
+## Honest Claim Boundaries
+
+- Stripe is test mode only; VentureOps does not claim live production money movement.
+- NemoClaw/OpenShell runtime enforcement is proof only when the runtime is actually started and shown through terminal/dashboard status. VentureOps enforces app-level spend policy regardless.
+- Hermes/Nemotron creative calls may fall back to deterministic content; fallback is visibly labeled in status, warnings, and agent records.
+- Secrets are loaded from local environment variables only and must never be committed.
+
 ## Limitations
 
 - No live-money production mode.
 - SQLite is local for hackathon judging.
 - Demo fallback is explicit and controlled by `DEMO_MODE=true`.
 - Hermes and Stripe require local credentials and services for live proof mode.
+
+## Agent Management
+
+Open `/agents` to see the latest run as an operator console: agent roster, goal, budget, success condition, tool permissions, Stripe status, proof/report status, spend totals, and links into mission control and operations logs.
 
 ## Final Submission Checklist
 

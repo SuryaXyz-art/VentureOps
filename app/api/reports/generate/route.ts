@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { generateCustomerReport } from "@/lib/fulfillment/report-generator";
 import { prisma } from "@/lib/prisma";
 
@@ -15,6 +15,13 @@ export async function POST(request: Request) {
       });
     } catch {
       order = null;
+    }
+  }
+
+  if (order) {
+    const existing = await prisma.fulfillmentReport.findFirst({ where: { orderId: order.id }, orderBy: { createdAt: "desc" } });
+    if (existing) {
+      return NextResponse.json({ report: { id: existing.id, title: existing.title, status: existing.status, provider: existing.provider }, reportUrl: `/reports/${existing.id}` });
     }
   }
 
@@ -47,3 +54,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ report: { id: "generated-preview", ...report, status: "delivered" }, reportUrl: "/reports/demo-report" });
   }
 }
+

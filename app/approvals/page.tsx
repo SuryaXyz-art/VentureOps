@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { CheckCircle2, RefreshCw, ShieldAlert, XCircle } from "lucide-react";
@@ -33,8 +33,8 @@ export default function ApprovalsPage() {
   const [actingId, setActingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  async function loadApprovals() {
-    setLoading(true);
+  async function loadApprovals(showLoading = false) {
+    if (showLoading) setLoading(true);
     setMessage(null);
     try {
       const response = await fetch("/api/approvals", { cache: "no-store" });
@@ -44,14 +44,15 @@ export default function ApprovalsPage() {
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to load approvals");
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }
 
   useEffect(() => {
-    void loadApprovals();
-    const id = window.setInterval(() => void loadApprovals(), 3000);
-    return () => window.clearInterval(id);
+    void loadApprovals(true);
+    // Approval decisions are operator-controlled, so this page refreshes on demand
+    // instead of polling and filling the terminal with GET /api/approvals logs.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function resolve(id: string, action: "approve" | "reject") {
@@ -62,7 +63,7 @@ export default function ApprovalsPage() {
       const data = await response.json() as { error?: string };
       if (!response.ok) throw new Error(data.error ?? `Unable to ${action} approval`);
       setMessage(action === "approve" ? "Spend approved and P&L updated." : "Spend rejected, blocked risk updated, and audit receipt created.");
-      await loadApprovals();
+      await loadApprovals(false);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : `Unable to ${action} approval`);
     } finally {
@@ -81,7 +82,7 @@ export default function ApprovalsPage() {
               <h1 className="text-4xl font-semibold sm:text-6xl">Approve only the spend that earns its keep.</h1>
               <p className="mt-5 max-w-3xl text-lg leading-8 text-muted-foreground">Medium-risk or threshold-crossing requests wait here until a founder approves or rejects them. Every action writes receipts, agent events, and P&L updates.</p>
             </div>
-            <Button size="lg" variant="outline" onClick={loadApprovals} disabled={loading}><RefreshCw className="size-4" /> Refresh from DB</Button>
+            <Button size="lg" variant="outline" onClick={() => loadApprovals(true)} disabled={loading}><RefreshCw className="size-4" /> Refresh from DB</Button>
           </div>
           {message ? <div className="mt-4 rounded-lg border border-border/70 bg-background/45 p-3 text-sm text-muted-foreground">{message}</div> : null}
         </Card>
@@ -93,7 +94,7 @@ export default function ApprovalsPage() {
                 <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
                   <div>
                     <div className="flex flex-wrap items-center gap-2"><ShieldAlert className="size-5 text-accent" /><h2 className="text-xl font-semibold">{approval.vendor}</h2><Badge>needs founder approval</Badge><Badge>{approval.riskLevel} risk</Badge></div>
-                    <p className="mt-2 text-sm text-muted-foreground">{approval.category} | {dollars(approval.amountCents)} | requested {new Date(approval.createdAt).toLocaleString()}</p>
+                    <p className="mt-2 text-sm text-muted-foreground">{approval.category} | {dollars(approval.amountCents)} | requested {new Date(approval.createdAt).toLocaleString()}</p><p className="mt-2 text-xs text-muted-foreground">Run {approval.businessRunId ?? "unassigned"} | Spend request {approval.spendRequestRef} | Receipt {approval.receiptRequired ? "required" : "optional"}</p>
                     <p className="mt-4 max-w-3xl text-sm leading-6 text-muted-foreground">{approval.reason}</p>
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2 lg:w-72">
@@ -101,7 +102,7 @@ export default function ApprovalsPage() {
                     <div className="rounded-lg border border-border/70 bg-background/45 p-3"><p className="text-xs text-muted-foreground">Remaining if queued</p><p className="text-2xl font-semibold">{dollars(approval.remainingCents)}</p></div>
                   </div>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-2">{approval.matchedRules.map((rule) => <span key={rule} className="rounded-md border border-border/70 bg-background/45 px-2 py-1 text-xs text-muted-foreground">{rule}</span>)}</div>
+                <div className="mt-4 rounded-lg border border-border/70 bg-background/45 p-3"><p className="text-xs font-semibold uppercase text-muted-foreground">Policy match</p><div className="mt-2 flex flex-wrap gap-2">{approval.matchedRules.map((rule) => <span key={rule} className="rounded-md border border-border/70 bg-background/45 px-2 py-1 text-xs text-muted-foreground">{rule}</span>)}</div></div>
                 <div className="mt-5 flex flex-wrap gap-3">
                   <Button onClick={() => resolve(approval.id, "approve")} disabled={actingId === approval.id}><CheckCircle2 className="size-4" /> Approve spend</Button>
                   <Button variant="outline" className="border-destructive/45 bg-destructive/10 text-destructive hover:bg-destructive/20" onClick={() => resolve(approval.id, "reject")} disabled={actingId === approval.id}><XCircle className="size-4" /> Reject and block</Button>
@@ -118,4 +119,6 @@ export default function ApprovalsPage() {
 function EmptyState({ text }: { text: string }) {
   return <div className="rounded-lg border border-border/70 bg-background/45 p-8 text-center text-muted-foreground">{text}</div>;
 }
+
+
 

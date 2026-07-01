@@ -1,6 +1,7 @@
-﻿import { headers } from "next/headers";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { getRuntimeConfig } from "@/lib/config/runtime";
+import { generateCustomerReport } from "@/lib/fulfillment/report-generator";
 import { prisma } from "@/lib/prisma";
 import { getStripeClient } from "@/lib/stripe/client";
 import { RESEARCH_REPORT_PRODUCT } from "@/lib/stripe/products";
@@ -137,11 +138,66 @@ export async function POST(request: Request) {
       } else {
         await prisma.profitLossReport.create({ data: { businessRunId, ...pnlData } });
       }
-    }
+
+      const existingReport = await prisma.fulfillmentReport.findFirst({ where: { orderId: order.id } });
+      if (!existingReport) {
+        try {
+          const generatedReport = await generateCustomerReport({
+            orderId: order.id,
+            customerName: checkoutSession.customer_details?.name ?? order.customerName ?? "Web3 Founder",
+            customerEmail: checkoutSession.customer_details?.email ?? checkoutSession.customer_email ?? order.customerEmail ?? undefined,
+            productName: checkoutSession.metadata?.productName ?? order.productName
+          });
+
+          const savedReport = await prisma.fulfillmentReport.create({
+            data: {
+              businessRunId,
+              orderId: order.id,
+              title: generatedReport.title,
+              markdown: generatedReport.markdown,
+              sectionsJson: JSON.stringify(generatedReport.sections),
+              status: "delivered",
+              provider: generatedReport.provider
+            }
+          });
+
+          await prisma.customerOrder.update({ where: { id: order.id }, data: { status: "delivered" } });
+          await prisma.agentEvent.create({
+            data: {
+              businessRunId,
+              role: "Ops",
+              title: "Customer report delivered",
+              detail: `Generated report ${savedReport.id} for paid order ${order.id}.`,
+              status: "fulfilled"
+            }
+          });
+          await prisma.receipt.create({
+            data: {
+              businessRunId,
+              source: "Ops Fulfillment",
+              amountCents: 0,
+              decision: "delivered",
+              note: `Generated customer report ${savedReport.id} after Stripe payment reconciliation.`,
+              externalId: savedReport.id
+            }
+          });
+        } catch (fulfillmentError) {
+          await prisma.agentEvent.create({
+            data: {
+              businessRunId,
+              role: "Ops",
+              title: "Report generation needs attention",
+              detail: fulfillmentError instanceof Error ? fulfillmentError.message : "Report generation failed after payment.",
+              status: "failed"
+            }
+          });
+        }
+      }    }
 
     return NextResponse.json({ received: true, mode: "stripe", type: event.type, reconciled: true, orderId: order.id });
   }
 
   return NextResponse.json({ received: true, mode: "stripe", type: event.type });
 }
+
 

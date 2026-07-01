@@ -1,4 +1,4 @@
-﻿import { hasStripeKeys } from "@/lib/stripe/client";
+import { hasStripeKeys } from "@/lib/stripe/client";
 
 export type RuntimeMode = "demo" | "live_test";
 
@@ -11,6 +11,8 @@ export type RuntimeConfig = {
   llmProvider: string;
   hermesConfigured: boolean;
   hermesBaseUrl: string;
+  policyMode: string;
+  nemoClawRuntimeConfigured: boolean;
   safeStatus: {
     demoMode: boolean;
     mode: RuntimeMode;
@@ -20,6 +22,8 @@ export type RuntimeConfig = {
     llmProvider: string;
     hermesConfigured: boolean;
     hermesBaseUrl: string;
+    policyMode: string;
+    nemoClawRuntimeConfigured: boolean;
   };
 };
 
@@ -42,7 +46,9 @@ export function getRuntimeConfig(): RuntimeConfig {
     stripeWebhookConfigured: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
     llmProvider: (process.env.LLM_PROVIDER ?? "mock").toLowerCase(),
     hermesConfigured: Boolean(process.env.HERMES_API_KEY),
-    hermesBaseUrl: process.env.HERMES_BASE_URL ?? "http://127.0.0.1:8642/v1"
+    hermesBaseUrl: process.env.HERMES_BASE_URL ?? process.env.HERMES_API_URL ?? "http://127.0.0.1:8642/v1",
+    policyMode: process.env.AGENT_POLICY_MODE ?? "shadow",
+    nemoClawRuntimeConfigured: Boolean(process.env.NEMOCLAW_RUNTIME_URL)
   };
 
   return {
