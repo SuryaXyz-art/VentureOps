@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/License-MIT-orange?style=for-the-badge" alt="License Badge" />
 </p>
 
-<h1 align="center">🚀 VentureOps Autopilot</h1>
+<h1 align="center"> VentureOps Autopilot</h1>
 
 <p align="center">
   <strong>The Agentic Business Control Tower — Launch, Earn, Spend, Fulfill & Audit with Autonomous AI Agents</strong>
@@ -18,25 +18,25 @@
 
 ---
 
-## 💡 The Problem
+##  The Problem
 
 Launching a micro-business today requires a founder to juggle planning, budgeting, marketing, sales, operations, and accounting — all manually. What if autonomous AI agents could orchestrate an entire business run while keeping a human founder in control of every dollar?
 
-## 🎯 Our Solution
+##  Our Solution
 
 **VentureOps Autopilot** is an agentic business control tower where a founder provides a single business goal and an operating budget. From there, a coordinated team of **9 specialist AI agents** autonomously:
 
 | Agent | Role | Intelligence |
 |-------|------|-------------|
-| 🧠 **CEO** | Strategic planning & success metrics | Hermes / Nemotron |
-| 💰 **CFO** | Deterministic budget policy enforcement | Rule Engine |
-| 📈 **Growth** | Marketing copy & launch material | Hermes / Nemotron |
-| 💳 **Stripe** | Revenue collection via Checkout Sessions | Stripe API |
-| ⚙️ **Ops** | Customer report generation & fulfillment | Hermes / Nemotron |
-| 💸 **Spend** | Proposes tool & data purchases | Rule Engine |
-| 🛡️ **Risk** | Deterministic policy gating & risk blocking | Rule Engine |
-| 📋 **Audit** | Receipt logging & event trail | Prisma |
-| 🔬 **Learning** | Experiment recommendations for next cycle | Hermes / Nemotron |
+|  **CEO** | Strategic planning & success metrics | Hermes / Nemotron |
+|  **CFO** | Deterministic budget policy enforcement | Rule Engine |
+|  **Growth** | Marketing copy & launch material | Hermes / Nemotron |
+|  **Stripe** | Revenue collection via Checkout Sessions | Stripe API |
+|  **Ops** | Customer report generation & fulfillment | Hermes / Nemotron |
+|  **Spend** | Proposes tool & data purchases | Rule Engine |
+|  **Risk** | Deterministic policy gating & risk blocking | Rule Engine |
+|  **Audit** | Receipt logging & event trail | Prisma |
+|  **Learning** | Experiment recommendations for next cycle | Hermes / Nemotron |
 
 > **Key Insight:** Creative agents use Hermes/Nemotron for intelligent planning. Financial safety agents (CFO, Risk, Audit) are **fully deterministic** — LLM output can never approve spend, override policy, or bypass the budget firewall.
 
@@ -89,27 +89,27 @@ Launching a micro-business today requires a founder to juggle planning, budgetin
 ### 🔄 End-to-End Autonomous Business Loop
 From a single goal, agents plan the business, create a paid Stripe offer, generate marketing copy, process checkout payments, fulfill customer reports, manage spend, block unsafe requests, and produce an auditable P&L.
 
-### 🛡️ Deterministic Budget Firewall
+###  Deterministic Budget Firewall
 Spend safety is **never delegated to an LLM**. A rule-based policy engine evaluates every spend request against budget limits, vendor allowlists, category blocklists, approval thresholds, and risk levels.
 
-### 💳 Real Stripe Test-Mode Integration
+###  Real Stripe Test-Mode Integration
 - Creates and reuses products and prices via the Stripe API
 - Opens Stripe Checkout Sessions for real payment flows
 - Webhook reconciliation updates orders, receipts, and P&L automatically
 - Full event audit trail stored in Prisma
 
-### 🤖 Hermes / Nemotron Intelligence
+###  Hermes / Nemotron Intelligence
 Creative agents call Hermes through a local OpenAI-compatible endpoint with optional Nemotron 3 Ultra routing. If the LLM times out, the system **visibly falls back** to deterministic content — no silent fake success.
 
-### 📊 Prisma-Backed Proof Dashboards
+### Prisma-Backed Proof Dashboards
 Every dashboard reads from the database. Business runs, agent events, orders, receipts, spend decisions, and P&L are all stored in Prisma-backed SQLite — queryable, auditable, and replayable.
 
-### 🔌 MCP Integration
+###  MCP Integration
 A local MCP stdio server (`scripts/mcp-server.mjs`) exposes safe app-level tools to MCP-compatible clients — without ever exposing API keys or secrets.
 
 ---
 
-## 🖥️ Dashboard Routes
+##  Dashboard Routes
 
 | Route | Description |
 |-------|-------------|
